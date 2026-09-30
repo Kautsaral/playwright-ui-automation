@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginData } from '../data/LoginData';
-import { invalidLoginData } from '../data/LoginData';
+import { loginData, invalidLoginData } from '../data/loginData';
 
 test.describe('Data-driven login tests', () => {
 
