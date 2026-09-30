@@ -9,3 +9,4 @@ test("Login with valid credentials", async ({ page }) => {
 
   await expect(page).toHaveURL(/inventory/);
 });
+
