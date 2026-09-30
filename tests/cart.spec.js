@@ -1,19 +1,48 @@
 import { test, expect } from '@playwright/test';
 
-test('Add product to cart', async ({ page }) => {
+test('Add specific product to cart', async ({ page }) => {
   await page.goto('https://www.saucedemo.com/');
 
-  await page.locator('[data-test="username"]').fill('standard_user');
-  await page.locator('[data-test="password"]').fill('secret_sauce');
+  await page.getByLabel('Username').fill('standard_user');
+  await page.getByLabel('Password').fill('secret_sauce');
   await page.getByRole('button', { name: 'Login' }).click();
 
-  await expect(page).toHaveURL(/inventory/);
+  const product = page
+    .locator('[data-test="inventory-item"]')
+    .filter({ hasText: 'Sauce Labs Bolt T-Shirt' });
 
-  await page.getByRole('button', { name: 'Add to cart' }).first().click();
+  await product.getByRole('button', { name: 'Add to cart' }).click();
 
-  await page.locator('.shopping_cart_link').click();
+  await expect(
+    page.locator('[data-test="shopping-cart-badge"]')
+  ).toHaveText('1');
+});
 
-  await expect(page.locator('.inventory_item_name').first()).toHaveText(
-    'Sauce Labs Backpack'
-  );
+
+test('Add multiple specific products to cart', async ({ page }) => {
+  await page.goto('https://www.saucedemo.com/');
+
+  await page.getByLabel('Username').fill('standard_user');
+  await page.getByLabel('Password').fill('secret_sauce');
+  await page.getByRole('button', { name: 'Login' }).click();
+
+  const backpack = page
+    .locator('[data-test="inventory-item"]')
+    .filter({ hasText: 'Sauce Labs Backpack' });
+
+  await backpack
+    .getByRole('button', { name: 'Add to cart' })
+    .click();
+
+  const tShirt = page
+    .locator('[data-test="inventory-item"]')
+    .filter({ hasText: 'Sauce Labs Bolt T-Shirt' });
+
+  await tShirt
+    .getByRole('button', { name: 'Add to cart' })
+    .click();
+
+  await expect(
+    page.locator('[data-test="shopping-cart-badge"]')
+  ).toHaveText('2');
 });
