@@ -1,11 +1,15 @@
 import { test, expect } from '@playwright/test';
 
 test('Select radio button', async ({ page }) => {
-  await page.goto('https://demoqa.com/radio-button');
+  await page.goto('https://demoqa.com/radio-button', {
+    waitUntil: 'commit',
+    timeout: 60000
+  });
 
   const yesRadio = page.getByText('Yes', { exact: true });
 
   await yesRadio.click();
 
-  await expect(page.locator('.text-success')).toHaveText('Yes');
+  await expect(page.locator('.text-success'))
+    .toHaveText('Yes');
 });
