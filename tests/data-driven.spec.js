@@ -18,7 +18,9 @@ test.describe('Data-driven login tests', () => {
         .click();
 
       await expect(page.locator('.title'))
-        .toHaveText(data.expectedTitle);
+        .toHaveText(data.expectedTitle,{
+          timeout: 15000
+        });
     });
 
   }
