@@ -1,48 +1,72 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
+import { InventoryPage } from '../pages/InventoryPage';
+import { CartPage } from '../pages/CartPage';
 
-test('Add specific product to cart', async ({ page }) => {
-  await page.goto('https://www.saucedemo.com/');
+test.describe('Cart Module', () => {
 
-  await page.getByLabel('Username').fill('standard_user');
-  await page.getByLabel('Password').fill('secret_sauce');
-  await page.getByRole('button', { name: 'Login' }).click();
+  test.beforeEach(async ({ page }) => {
+    const loginPage = new LoginPage(page);
 
-  const product = page
-    .locator('[data-test="inventory-item"]')
-    .filter({ hasText: 'Sauce Labs Bolt T-Shirt' });
+    await loginPage.goto();
+    await loginPage.login('standard_user', 'secret_sauce');
+  });
 
-  await product.getByRole('button', { name: 'Add to cart' }).click();
+  test('TC-CART-001 - Open cart and verify product', async ({ page }) => {
+    const inventoryPage = new InventoryPage(page);
+    const cartPage = new CartPage(page);
 
-  await expect(
-    page.locator('[data-test="shopping-cart-badge"]')
-  ).toHaveText('1');
-});
+    await inventoryPage.addProductToCart(
+      'Sauce Labs Backpack'
+    );
 
+    await cartPage.openCart();
 
-test('Add multiple specific products to cart', async ({ page }) => {
-  await page.goto('https://www.saucedemo.com/');
+    await cartPage.verifyProduct(
+      'Sauce Labs Backpack'
+    );
+  });
 
-  await page.getByLabel('Username').fill('standard_user');
-  await page.getByLabel('Password').fill('secret_sauce');
-  await page.getByRole('button', { name: 'Login' }).click();
+  test('TC-CART-002 - Verify multiple products in cart', async ({ page }) => {
+    const inventoryPage = new InventoryPage(page);
+    const cartPage = new CartPage(page);
 
-  const backpack = page
-    .locator('[data-test="inventory-item"]')
-    .filter({ hasText: 'Sauce Labs Backpack' });
+    await inventoryPage.addProductToCart(
+      'Sauce Labs Backpack'
+    );
 
-  await backpack
-    .getByRole('button', { name: 'Add to cart' })
-    .click();
+    await inventoryPage.addProductToCart(
+      'Sauce Labs Bike Light'
+    );
 
-  const tShirt = page
-    .locator('[data-test="inventory-item"]')
-    .filter({ hasText: 'Sauce Labs Bolt T-Shirt' });
+    await cartPage.openCart();
 
-  await tShirt
-    .getByRole('button', { name: 'Add to cart' })
-    .click();
+    await cartPage.verifyItemCount(2);
+  });
 
-  await expect(
-    page.locator('[data-test="shopping-cart-badge"]')
-  ).toHaveText('2');
+  test('TC-CART-003 - Remove product from cart', async ({ page }) => {
+    const inventoryPage = new InventoryPage(page);
+    const cartPage = new CartPage(page);
+
+    await inventoryPage.addProductToCart(
+      'Sauce Labs Backpack'
+    );
+
+    await inventoryPage.addProductToCart(
+      'Sauce Labs Bike Light'
+    );
+
+    await cartPage.openCart();
+
+    await cartPage.removeProduct(
+      'Sauce Labs Backpack'
+    );
+
+    await cartPage.verifyItemCount(1);
+
+    await cartPage.verifyProduct(
+      'Sauce Labs Bike Light'
+    );
+  });
+
 });
