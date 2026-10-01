@@ -1,12 +1,37 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/LoginPage';
+import {
+  validLoginData,
+  invalidLoginData
+} from '../data/loginData';
 
-test("Login with valid credentials", async ({ page }) => {
-  await page.goto("https://www.saucedemo.com/");
+test.describe('Login Module', () => {
 
-  await page.locator('[data-test="username"]').fill("standard_user");
-  await page.locator('[data-test="password"]').fill("secret_sauce");
-  await page.locator('[data-test="login-button"]').click();
+  for (const data of validLoginData) {
+    test(`Valid login - ${data.username}`, async ({ page }) => {
+      const loginPage = new LoginPage(page);
 
-  await expect(page).toHaveURL(/inventory/);
+      await loginPage.goto();
+      await loginPage.login(data.username, data.password);
+
+      await expect(page.locator('.title'))
+        .toHaveText(data.expectedTitle);
+    });
+  }
+
+  for (const data of invalidLoginData) {
+    test(
+      `Invalid login - ${data.username || 'empty credentials'}`,
+      async ({ page }) => {
+        const loginPage = new LoginPage(page);
+
+        await loginPage.goto();
+        await loginPage.login(data.username, data.password);
+
+        await expect(page.locator('[data-test="error"]'))
+          .toContainText(data.expectedError);
+      }
+    );
+  }
+
 });
-

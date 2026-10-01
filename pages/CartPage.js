@@ -26,4 +26,14 @@ export class CartPage {
   async verifyItemCount(count) {
     await expect(this.cartItems).toHaveCount(count);
   }
+
+  async removeProduct(productName) {
+  const product = this.cartItems.filter({
+    hasText: productName
+  });
+
+  await product.getByRole('button', {
+    name: /Remove/
+  }).click();
+  }
 }
